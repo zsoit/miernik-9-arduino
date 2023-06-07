@@ -1,7 +1,7 @@
 
----
-<div style="page-break-after: always;"></div>
----
+
+sudo chmod a+rw /dev/ttyACM0  
+
 
 Jakub Achtelik
 Kacper Oborzyńśki

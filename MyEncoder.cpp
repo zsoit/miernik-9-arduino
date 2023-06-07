@@ -23,6 +23,8 @@ public:
       lastCounter = currentCounter;
     }
 
+    // if(currentCounter<0) currentCounter=0;
+
     if (digitalRead(resetBtn) == LOW) {
       rotary.write(0);
       lastCounter = 0;

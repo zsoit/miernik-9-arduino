@@ -4,59 +4,88 @@
 
   MIERNIK TEMPERATURY 9
 
-  - Odczyt temperatury z czunika DS18B20, w
-  - Wyświetalnie jej na ekranie LCD,
-  - wykorzystanie endokera do ustawienia progu temperatury maksymalnej i minimalnej,
-  - zapewnienie sygnalizacji przekroczenia progu.
+  - 1. Odczyt temperatury z czunika DS18B20, w
+  - 2. Wyświetalnie jej na ekranie LCD,
+  - 3. wykorzystanie endokera do ustawienia progu temperatury maksymalnej i minimalnej,
+  - 4. zapewnienie sygnalizacji przekroczenia progu.
 
 */
 
-#include "lcd.cpp"
+#include "ScreenLcd.cpp"
+#include "DiodeLed.cpp"
+#include "MyEncoder.cpp"
+#include "Button.cpp"
+
 #include "ds18b20.cpp"
-#include "myencoder.cpp"
 
-#define ENCODER_A_PIN 2
-#define ENCODER_B_PIN 3
-#define RESET_BTN_PIN 5
-#define DS_PIN  4
-
-#define LED 4
-#define RS 12
-#define E 11
-#define D4 10
-#define D5 9
-#define D6 8
-#define D7 7
+#include "CONFIG.cpp"
 
 MyEncoder myEncoder(ENCODER_A_PIN, ENCODER_B_PIN, RESET_BTN_PIN);
-TemperatureSensor temperatureSensor(DS_PIN);
-ScreenLcd lcd(RS, E, D4, D5, D6, D7);
+TemperatureSensor TemperatureSensor(DS_PIN);
+ScreenLcd Lcd(RS, E, D4, D5, D6, D7);
+DiodeLed led(LED_PIN);
+Button btn(BTN_PIN);
 
 void setup()
 {
-
+  Serial.begin(SERIAL_PORT);
   myEncoder.setup();
-  // Serial.begin(115200);
-  Serial.begin(9600);
+  TemperatureSensor.setup();
+  Lcd.setup();
+}
 
-  // Serial.begin(9600);
-  temperatureSensor.begin();
-  lcd.setup();
-  Serial.print("dupa");
+
+
+void SygnalizcajaProgu()
+{
+
+  // SYGNALIZACJA PROGU  
+  long limit = myEncoder.getCounter();
+  float limit_temperature = TemperatureSensor.readTemperature();
+  limit_temperature = static_cast<int>(limit_temperature);
+
+  int option = btn.detectPress();
+  if(option==1) led.limit_max(3,limit_temperature);;
+  if(option==0)  led.limit_min(3,limit_temperature);;
+
+ 
+}
+
+
+
+void Wyswietlacz()
+
+{
+  // ODCZYT TEMPERATURY
+  float get_temperature = TemperatureSensor.readTemperature();
+  long get_counter = myEncoder.getCounter();
+
+  // NAPISY
+  String text_limit_header = btn.text_limit();
+  String text_limit = text_limit_header + String(get_counter) + " C";
+  String text_temperature = "T: " + String(get_temperature) + " C";
+  
+  // WYSWIETLENIE NA EKRANIE
+  Lcd.displayText(text_temperature, text_limit);
 
 }
 
+void TestujPomiar()
+{
+  float get_temperature = TemperatureSensor.readTemperature();
+  String text_temperature = "T: " + String(get_temperature) + " C";
+  Serial.println(text_temperature);
+}
 
 void loop()
 {
 
-  float temperature = temperatureSensor.readTemperature();
-  String rotation = "PROG: " + String(myEncoder.getCounter());
+  Wyswietlacz();
+  SygnalizcajaProgu();
+  // TestujPomiar();
 
-  // delay(5000);
-  lcd.displayText(
-    "TEMP. :" + String(temperature) + " C",
-    rotation
-  );
-  temperatureSensor.test();
+
 }
+
+
+

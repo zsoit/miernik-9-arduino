@@ -15,7 +15,6 @@ class DiodeLed
       digitalWrite(ledPin, HIGH);
     }
 
-
     void off(){
       digitalWrite(ledPin, LOW);
     }
@@ -28,7 +27,6 @@ class DiodeLed
       delay(1000);
     }
 
-
     void limit_max(long limit, int temperature)
     {
       if(temperature >= limit) off();
@@ -39,5 +37,10 @@ class DiodeLed
     {
       if(temperature > limit) on();
       else off();
+    }
+
+    void test()
+    {
+      on();
     }
 };

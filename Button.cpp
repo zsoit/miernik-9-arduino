@@ -27,19 +27,19 @@ class Button
           b = a;
       }
 
-      void testOption()
+      void test()
       {
         int option = detectPress();
-        if(option==1) Serial.println("STAN: MAX+");
-        if(option==0) Serial.println("STAN: MIN");
+        if(option==1) Serial.println("STATE: MAX+");
+        if(option==0) Serial.println("STATE: MIN");
 
       }
 
       String text_limit()
       {
         int option = detectPress();
-        if(option==1) return "+MAX: ";
-        if(option==0) return "-MIN: ";
+        if(option==1) return "MAX:";
+        if(option==0) return "MIN:";
 
       }
 };

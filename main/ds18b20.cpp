@@ -19,6 +19,16 @@ class TemperatureSensorDS18B20
       return sensor.getTempCByIndex(0);
     }
 
+    float readKelvin(){
+      return readTemperature() + 273.15;
+    }
+    
+    float readFahrenheit(){
+      float c = readTemperature();
+      float f = (c* 9.0 / 5.0)+32.0;
+      return f;
+    }
+
     void test(){
         float get_temperature = readTemperature();
         String text_temperature = "T: " + String(get_temperature) + " C";

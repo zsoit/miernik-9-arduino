@@ -60,19 +60,28 @@ class MiernikTemperatury9
 
     void Wyswietlacz() 
     {
+
       // ODCZYT TEMPERATURY
       float get_temperature = TemperatureSensor.readTemperature();
       long get_counter = MyEncoder.getCounter();
-
+      float get_kelvin = TemperatureSensor.readKelvin();
+      float get_fahrenheit = TemperatureSensor.readFahrenheit();
+      
       // NAPISY
       String text_limit_header = Btn.text_limit();
       String text_limit = text_limit_header + String(get_counter) + " C";
-      String text_temperature = "T:" + String(get_temperature);
+      String text_temperature = "T:" + String(get_temperature) + " C";
+      String text_kelvin = String(get_kelvin) + "K";
+      String text_fahrenheit = String(get_fahrenheit ) + "F";
 
-      String text = text_temperature + " " + text_limit;
 
-      // WYSWIETLENIE NA EKRANIE
-      Lcd.displayText(text);
+      String texts[3];
+      texts[0] = "==DS18B20==";
+      texts[1] = text_temperature;;
+      texts[2] = "T: " + text_kelvin +" " + text_fahrenheit;
+      texts[3] = text_limit;
+
+      Lcd.displayTextX4(texts);
     }
 
 };

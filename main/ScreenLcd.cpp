@@ -2,8 +2,8 @@
 #include <LiquidCrystal.h>
 #include <Arduino.h>
 
-#define LCD_CHAR 16
-#define LCD_ROWS 1
+#define LCD_CHAR 20
+#define LCD_ROWS 4
 
 class ScreenLcd
 {
@@ -22,7 +22,25 @@ class ScreenLcd
       lcd.clear();
       lcd.setCursor(0, 1);
       lcd.print(line);
+    
     }
+
+    void displayTextX4(const String line[3]){
+      lcd.clear();
+      
+      lcd.setCursor(0, 0);
+      lcd.print(line[0]);
+      
+      lcd.setCursor(0, 1);
+      lcd.print(line[1]);
+      
+      lcd.setCursor(0, 2);
+      lcd.print(line[2]);
+
+      lcd.setCursor(0, 3);
+      lcd.print(line[3]);
+    }
+
   
   void test() {
       lcd.clear();

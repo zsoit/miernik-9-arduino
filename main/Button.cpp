@@ -21,8 +21,7 @@ class Button
         
       }
 
-      void setB(int bset)
-      {
+      void setB(int bset){
         b = bset;
       }
 
@@ -37,16 +36,13 @@ class Button
           a = digitalRead(pin_btn);
           if (a == 1 && b == 0) {
             setB(1);
-            pressBtn =  1;  
+            pressBtn=1;  
           }
           else
           {
-            pressBtn =  0;
             setB(0);
-
+            pressBtn=0;
           } 
-
-          Serial.print(getB());
           return pressBtn;
       }
 
@@ -63,6 +59,5 @@ class Button
         int option = detectPress();
         if(option==1) return "MAX:";
         if(option==0) return "MIN:";
-
       }
 };

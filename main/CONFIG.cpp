@@ -8,7 +8,7 @@
 #define SERIAL_PORT 9600
 
 // DS18B20 TEMPERATURE PIN
-#define DS_PIN  4
+#define DS_PIN  13
 
 // LCD SCREEN PIN
 #define RS 12
@@ -27,4 +27,4 @@
 #define LED_PIN 6
 
 // MIN/MAX BUTTON PIN
-#define BTN_PIN 13
+#define BTN_PIN 4

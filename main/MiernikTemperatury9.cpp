@@ -9,6 +9,30 @@ class MiernikTemperatury9
     DiodeLed Led;
     Button Btn;
 
+    float Min;
+    float Max;
+
+    void setMin(float newMin)
+    {
+      Min = newMin;
+    }
+
+    float getMin()
+    {
+      return Min;
+    }
+
+    void setMax(float newMax)
+    {
+      Max = newMax;
+    }
+
+    float getMax()
+    {
+      return Max;
+    }
+
+
   public:
     void Testowanie()
     {
@@ -29,6 +53,7 @@ class MiernikTemperatury9
 
     void setup() 
     {
+      int now = 0;
       Serial.begin(SERIAL_PORT);
       MyEncoder.setup();
       TemperatureSensor.setup();
@@ -41,7 +66,10 @@ class MiernikTemperatury9
       TemperatureSensor(DS_PIN),
       Lcd(RS, E, D4, D5, D6, D7),
       Led(LED_PIN),
-      Btn(BTN_PIN) {}
+      Btn(BTN_PIN) {
+        Min = 0;
+        Max = 0;
+      }
 
 
     void SygnalizcajaProgu() 
@@ -53,9 +81,19 @@ class MiernikTemperatury9
 
       int option = Btn.detectPress();
       if (option == 1)
-        Led.limit_max(3, limit_temperature);
+      {
+        if(getMax() == limit) setMax(getMax());
+        else setMax(limit);
+        
+        Led.limit_max(getMax(), limit_temperature);
+      }
       if (option == 0)
-        Led.limit_min(3, limit_temperature);
+      {
+        if(getMin() == limit) setMin(getMin());
+        else setMin(limit);
+        
+        Led.limit_max(getMin(), limit_temperature);
+      }
     }
 
     void Wyswietlacz() 
@@ -82,6 +120,7 @@ class MiernikTemperatury9
       texts[3] = text_limit;
 
       Lcd.displayTextX4(texts);
+      // delay(700);
     }
 
 };

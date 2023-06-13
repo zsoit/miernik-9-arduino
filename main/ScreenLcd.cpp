@@ -44,7 +44,7 @@ class ScreenLcd
   
   void test() {
       lcd.clear();
-      lcd.setCursor(0, 1);
+      lcd.setCursor(0, 0);
       lcd.print("test");
       delay(2000);
   }

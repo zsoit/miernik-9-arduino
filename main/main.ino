@@ -12,9 +12,8 @@
   - 4. zapewnienie sygnalizacji przekroczenia progu.
 
 */
-
-
 MiernikTemperatury9 projekt;
+
 
 void setup() {
   projekt.setup();
@@ -23,5 +22,7 @@ void setup() {
 void loop() {
   projekt.loop();
 }
+
+
 
 

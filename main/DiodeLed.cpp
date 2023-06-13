@@ -29,8 +29,8 @@ class DiodeLed
 
     void limit_max(long limit, int temperature)
     {
-      if(temperature >= limit) on();
-      else off();
+      if(temperature > limit) off();
+      else on();
     }
 
     void limit_min(long limit, int temperature)

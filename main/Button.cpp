@@ -30,20 +30,16 @@ class Button
         return b;
       }
 
-      int detectPress() 
+
+      int detectPress()
       {
-          b = getB();
-          a = digitalRead(pin_btn);
-          if (a == 1 && b == 0) {
-            setB(1);
-            pressBtn=1;  
-          }
-          else
-          {
-            setB(0);
-            pressBtn=0;
-          } 
-          return pressBtn;
+        a = digitalRead(pin_btn);
+        if (a == HIGH && b == LOW) {
+            return 1;
+        }
+        else{
+             return 0;
+        }
       }
 
       void test()

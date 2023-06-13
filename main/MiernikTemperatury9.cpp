@@ -64,7 +64,8 @@ class MiernikTemperatury9
       TemperatureSensor(DS_PIN),
       Lcd(RS, E, D4, D5, D6, D7),
       Led(LED_PIN),
-      Btn(BTN_PIN) { }
+      Btn(BTN_PIN) { 
+      }
 
 
     void Main() 
@@ -77,7 +78,9 @@ class MiernikTemperatury9
       
       // enkoder
       long get_counter = MyEncoder.getCounter();
-      int limit_temperature = static_cast<int>(get_counter);
+      
+      int limit_temperature = static_cast<int>(get_temperature);
+
 
 
       String limit_cursor_max;
@@ -87,24 +90,30 @@ class MiernikTemperatury9
       int detect = Btn.detectPress();
       if(detect==0)
       {
+          Limit.setMin(get_counter);
 
-         Limit.setMax(get_counter);
-
-        limit_cursor_max = "<=";
-        limit_cursor_min = " ";        
+          limit_cursor_max = " ";
+          limit_cursor_min = "<=";
+          Led.limit_min(limit_temperature,Limit.getMin());    
       }
 
       if(detect==1)
       {
 
-        Limit.setMin(get_counter);
-        
-        limit_cursor_max = " ";
-        limit_cursor_min = "<=";
+        Limit.setMax(get_counter);
+
+        limit_cursor_max = "<=";
+        limit_cursor_min = " ";
+        Led.limit_max(limit_temperature,Limit.getMax());        
+
+
       }
+
+
 
       int get_limit_max = Limit.getMax();
       int get_limit_min = Limit.getMin();
+
 
 
       // NAPISY
@@ -112,13 +121,13 @@ class MiernikTemperatury9
       String text_limit_min = "MIN: " +  String(get_limit_min) + " C ";
       int STAN = Btn.detectPress();
 
-      String text_temperature = "T:" + String(get_temperature) + " C";
+      String text_temperature = "T:" + String(get_temperature) + " C  BTN:" + String(STAN);
       String text_kelvin = String(get_kelvin) + "K";
       String text_fahrenheit = String(get_fahrenheit ) + "F";
 
       String texts[3];
 
-      texts[0] = text_temperature;
+      texts[0] = text_temperature ;
       texts[1] = "T: " + text_kelvin +" " + text_fahrenheit;
       texts[2] = text_limit_max + limit_cursor_max;
       texts[3] = text_limit_min + limit_cursor_min;
@@ -130,8 +139,7 @@ class MiernikTemperatury9
     {
         // SYGNALIZACJA PROGU  
         long limit = MyEncoder.getCounter();
-        float limit_temperature = TemperatureSensor.readTemperature();
-        limit_temperature = static_cast<int>(limit_temperature);
+
     }
 
 };

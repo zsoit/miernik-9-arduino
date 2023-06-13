@@ -12,6 +12,7 @@
   - 4. zapewnienie sygnalizacji przekroczenia progu.
 
 */
+int bb;
 MiernikTemperatury9 projekt;
 
 

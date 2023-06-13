@@ -6,19 +6,24 @@ class LimitTemperature
   private:
     int Min;
     int Max;
+    int Last;
 
 
   public:
     LimitTemperature(){
       Min=0;
       Max=0;
+      Last=0;
     }
 
     void setMin(int newMin){ Min = newMin;}
     void setMax(int newMax){ Max = newMax;}
+    void setLast(int newLast){ Last = newLast;}
+
     
     int getMin(){ return Min; }
     int getMax(){ return Max; }
+    int getLast() { return Last; }
 };
 
 class MiernikTemperatury9 
@@ -76,40 +81,62 @@ class MiernikTemperatury9
       float get_fahrenheit = TemperatureSensor.readFahrenheit();
       
       // enkoder
-      long get_counter = MyEncoder.getCounter();
-      int limit_temperature = static_cast<int>(get_counter);
+      // int limit_temperature = static_cast<int>(get_counter);
 
 
       String limit_cursor_max;
       String limit_cursor_min;
 
+      // long get_counter = MyEncoder.getCounter();
+      // long get_counter_max;
+      // long get_counter_min;
+
       // przycisk
       int detect = Btn.detectPress();
-      if(detect==0)
-      {
+      int get_counter = MyEncoder.getCounter();
 
-         Limit.setMax(get_counter);
+        int limit_temperature = static_cast<int>(limit_temperature);
 
-        limit_cursor_max = "<=";
-        limit_cursor_min = " ";        
-      }
 
+      
       if(detect==1)
       {
-
-        Limit.setMin(get_counter);
+        int get_max = Limit.getMax();
+      
+          Limit.setMax(get_counter);
         
+        limit_cursor_max = "<=";
+        limit_cursor_min = " ";
+
+      }
+
+      if(detect==0)
+      {
+       
+        
+        int get_min = Limit.getMin(); 
+        Limit.setMin(get_counter);
+
         limit_cursor_max = " ";
         limit_cursor_min = "<=";
+
+
       }
+
 
       int get_limit_max = Limit.getMax();
       int get_limit_min = Limit.getMin();
 
 
+        Led.limit_min(get_limit_min, limit_temperature);
+       Led.limit_max(get_limit_max,limit_temperature);
+
+
+
+
       // NAPISY
-      String text_limit_max = "MAX: "  + String(get_limit_max) + " C ";
-      String text_limit_min = "MIN: " +  String(get_limit_min) + " C ";
+      String text_limit_max = "   MAX: "  + String(get_limit_max) + " C ";
+      String text_limit_min = "   MIN: " +  String(get_limit_min) + " C ";
       int STAN = Btn.detectPress();
 
       String text_temperature = "T:" + String(get_temperature) + " C";
@@ -118,7 +145,7 @@ class MiernikTemperatury9
 
       String texts[3];
 
-      texts[0] = text_temperature;
+      texts[0] = text_temperature + " BTN: " + String(STAN);
       texts[1] = "T: " + text_kelvin +" " + text_fahrenheit;
       texts[2] = text_limit_max + limit_cursor_max;
       texts[3] = text_limit_min + limit_cursor_min;

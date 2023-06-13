@@ -6,8 +6,11 @@ class Button
   private:
       int a;
       int b;
-      int pin_btn;
+      int buttonPin;
       int pressBtn;
+        bool lastState;
+
+      
       
 
     public:
@@ -16,8 +19,11 @@ class Button
         a = 0;
         b = 0;
         pressBtn = 0;
-        pin_btn = pin;
-        pinMode(pin_btn, INPUT);
+        buttonPin = pin;
+        // pinMode(pin_btn, INPUT);
+            // buttonPin = pin;
+    lastState = HIGH;
+    pinMode(buttonPin, INPUT_PULLUP);
         
       }
 
@@ -30,21 +36,24 @@ class Button
         return b;
       }
 
-      int detectPress() 
+     int detectPress()
       {
-          b = getB();
-          a = digitalRead(pin_btn);
-          if (a == 1 && b == 0) {
-            setB(1);
-            pressBtn=1;  
-          }
-          else
-          {
-            setB(0);
-            pressBtn=0;
-          } 
-          return pressBtn;
+        bool buttonState = digitalRead(buttonPin);
+
+        if (buttonState == LOW)
+        {
+          // Przycisk zaciśnięty
+          return 0;
+        }
+        else
+        {
+          // Przycisk niezaciśnięty
+          return 1;
+        }
       }
+
+
+        
 
       void test()
       {

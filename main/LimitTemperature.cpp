@@ -13,7 +13,7 @@ private:
   int a = 1;
   int b = 1;
   int t = 0;
-
+  float temperature;
 
 public:
   String text_max = "0";
@@ -29,6 +29,12 @@ public:
     pinMode(SIB, INPUT);
     pinMode(SIA, INPUT);
   }
+
+  void setTemp(float temp)
+  {
+    temperature = temp;
+  }
+  float getTemp() {return temperature;}
 
   void setMin(int newMin) { Min = newMin; }
   void setMax(int newMax) { Max = newMax; }
@@ -74,8 +80,8 @@ public:
           (digitalRead(SIB) == 1) ? setMax(getMax() + 1) : setMax(getMax() - 1);
           testPrintMax();      
         }
-        setTextMax("MAX: " + String(getMax()) + " <==");
-        setTextMin("MIN: " + String(getMin()));
+        setTextMax("MAX: " + String(getMax()) + " C <==");
+        setTextMin("MIN: " + String(getMin()) + " C");
 
 
     }
@@ -97,8 +103,8 @@ public:
         testPrintMin();
       }
 
-      setTextMax("MAX: " + String(getMax()));
-      setTextMin("MIN: " + String(getMin()) + " <==");
+      setTextMax("MAX: " + String(getMax()) + " C");
+      setTextMin("MIN: " + String(getMin()) + " C <==");
     }
   }
 

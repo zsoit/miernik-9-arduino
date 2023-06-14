@@ -18,14 +18,35 @@ class MiernikTemperatury9
       // Lcd.test();
       // Btn.test();
       // Led.test();
+
+
+      Limit.setTemp(TemperatureSensor.readTemperature());
+
       Limit.test(Btn.detectPress());
+
+      int choose = Btn.detectPress();
+      if(choose == 1) Led.limit_max(Limit.getMax(), TemperatureSensor.readTemperature());
+      if(choose == 0) Led.limit_min(Limit.getMin(), TemperatureSensor.readTemperature());
+
+      String xd[3];
+
+      xd[1] = Limit.getTextMin();
+      xd[0] = Limit.getTextMax();
+      
+
+      if(Btn.detectPress()==0) xd[2] = TemperatureSensor.text_temperature();
+      else xd[2] = TemperatureSensor.text_second_row();
+
+      // xd[3] = "simea";
+
+      Lcd.displayTextX4(xd);     
 
     } 
 
     void loop() 
     {
-      Main();
-      // Testing();
+      // Main();
+      Testing();
     }
 
     void setup() 
@@ -49,6 +70,9 @@ class MiernikTemperatury9
     {
       
       Limit.test(Btn.detectPress());
+
+
+
 
       String texts[3];
 

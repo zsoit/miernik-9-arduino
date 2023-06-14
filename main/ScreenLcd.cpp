@@ -9,20 +9,19 @@ class ScreenLcd
 {
   private:
     LiquidCrystal lcd;
-    
+
   public:
     ScreenLcd(int rs, int en, int d4, int d5, int d6, int d7)
-      : lcd(rs, en, d4, d5, d6, d7) {}
+      : lcd(rs, en, d4, d5, d6, d7){}
 
     void setup() {
-      lcd.begin(LCD_CHAR,LCD_ROWS);
+      lcd.begin(LCD_CHAR, LCD_ROWS);
     }
 
     void displayText(const String line) {
       lcd.clear();
       lcd.setCursor(0, 1);
       lcd.print(line);
-    
     }
 
     void displayTextX4(const String line[3]){
@@ -37,15 +36,15 @@ class ScreenLcd
       lcd.setCursor(0, 2);
       lcd.print(line[2]);
 
-      lcd.setCursor(0, 3);
-      lcd.print(line[3]);
+      // lcd.setCursor(0, 3);
+      // lcd.print(line[3]);
     }
 
-  
-  void test() {
+
+    void test() {
       lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("test");
       delay(2000);
-  }
+    }
 };

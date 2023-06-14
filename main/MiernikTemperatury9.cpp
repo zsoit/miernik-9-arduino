@@ -1,35 +1,90 @@
 #include "CONFIG.cpp"
 
 
+
 class LimitTemperature
 {
-  private:
-    int Min;
-    int Max;
+private:
+  int Min;
+  int Max;
+  int SIA;
+  int SIB;
+  Button Btn;
 
+  int a = 1;
+  int b = 1;
+  int t = 0;
 
-  public:
-    LimitTemperature(){
-      Min=0;
-      Max=0;
+public:
+  LimitTemperature(int detectPress) : Min(0), Max(0), SIA(2), SIB(3), Btn(4) {
+  }
+
+  void setup()
+  {
+    pinMode(SIB, INPUT);
+    pinMode(SIA, INPUT);
+  }
+
+  void setMin(int newMin) { Min = newMin; }
+  void setMax(int newMax) { Max = newMax; }
+
+  int getMin() { return Min; }
+  int getMax() { return Max; }
+
+  void EncoderUsing()
+  {
+
+    int choose = Btn.detectPress();
+
+    if (choose == 1)
+    {
+      a = digitalRead(SIA);
+      if ((b == 1) && (a == 0) && ((millis() - t) > 50))
+      {
+        t = millis();
+        if (digitalRead(SIB) == 1)
+        {
+          setMax(getMax() + 1);
+          Serial.println("MAX: " + String(getMax()));
+        }
+        else
+        {
+          setMax(getMax() - 1);
+          Serial.println("MAX: " + String(getMax()));
+        }
+      }
     }
 
-    void setMin(int newMin){ Min = newMin;}
-    void setMax(int newMax){ Max = newMax;}
-    
-    int getMin(){ return Min; }
-    int getMax(){ return Max; }
+    if (choose == 0)
+    {
+      a = digitalRead(SIA);
+      if ((b == 1) && (a == 0) && ((millis() - t) > 50))
+      {
+        t = millis();
+        if (digitalRead(SIB) == 1)
+        {
+          setMin(getMin() + 1);
+          Serial.println("MIN: " + String(getMin()));
+        }
+        else
+        {
+          setMin(getMin() - 1);
+          Serial.println("MIN: " + String(getMin()));
+        }
+      }
+    }
+  }
 };
 
 class MiernikTemperatury9 
 {
   private:
-    MyEncoder MyEncoder;
     TemperatureSensorDS18B20 TemperatureSensor;
     ScreenLcd Lcd;
     DiodeLed Led;
     Button Btn;
     LimitTemperature Limit;
+    int DetectPress = Btn.detectPress();
 
 
   public:
@@ -39,32 +94,33 @@ class MiernikTemperatury9
       // TemperatureSensor.test();
       // Lcd.test();
       // MyEncoder.test();
-      Btn.test();
+      // Btn.test();
       // Led.test();
+      Limit.EncoderUsing();
+
     } 
 
     void loop() 
     {
-      Main();
+      // Main();
       Testing();
     }
 
     void setup() 
     {
-      int now = 0;
       Serial.begin(SERIAL_PORT);
-      MyEncoder.setup();
       TemperatureSensor.setup();
       Lcd.setup();
+
     }
 
 
     MiernikTemperatury9() : 
-      MyEncoder(ENCODER_A_PIN, ENCODER_B_PIN, RESET_BTN_PIN),
       TemperatureSensor(DS_PIN),
       Lcd(RS, E, D4, D5, D6, D7),
       Led(LED_PIN),
-      Btn(BTN_PIN) { 
+      Btn(BTN_PIN),
+      Limit(Btn.detectPress()) { 
       }
 
 
@@ -77,21 +133,20 @@ class MiernikTemperatury9
       float get_fahrenheit = TemperatureSensor.readFahrenheit();
       
       // enkoder
-      long get_counter = MyEncoder.getCounter();
+
       
       int limit_temperature = static_cast<int>(get_temperature);
-
-
 
       String limit_cursor_max;
       String limit_cursor_min;
 
+
       // przycisk
       int detect = Btn.detectPress();
+
       if(detect==0)
       {
-          Limit.setMin(get_counter);
-
+          // Limit.setMin(get_counter);
           limit_cursor_max = " ";
           limit_cursor_min = "<=";
           Led.limit_min(limit_temperature,Limit.getMin());    
@@ -99,29 +154,23 @@ class MiernikTemperatury9
 
       if(detect==1)
       {
-
-        Limit.setMax(get_counter);
-
+        // Limit.setMax(get_counter);
         limit_cursor_max = "<=";
         limit_cursor_min = " ";
         Led.limit_max(limit_temperature,Limit.getMax());        
 
-
       }
-
 
 
       int get_limit_max = Limit.getMax();
       int get_limit_min = Limit.getMin();
 
 
-
       // NAPISY
-      String text_limit_max = "MAX: "  + String(get_limit_max) + " C ";
-      String text_limit_min = "MIN: " +  String(get_limit_min) + " C ";
-      int STAN = Btn.detectPress();
+      String text_limit_max = "  MAX: "  + String(get_limit_max) + " C ";
+      String text_limit_min = "  MIN: " +  String(get_limit_min) + " C ";
 
-      String text_temperature = "T:" + String(get_temperature) + " C  BTN:" + String(STAN);
+      String text_temperature = "T:" + String(get_temperature) + " C";
       String text_kelvin = String(get_kelvin) + "K";
       String text_fahrenheit = String(get_fahrenheit ) + "F";
 
@@ -133,13 +182,6 @@ class MiernikTemperatury9
       texts[3] = text_limit_min + limit_cursor_min;
 
       Lcd.displayTextX4(texts);
-    }
-
-    void displayLimit()
-    {
-        // SYGNALIZACJA PROGU  
-        long limit = MyEncoder.getCounter();
-
     }
 
 };

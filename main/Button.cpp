@@ -1,59 +1,64 @@
 #include <Arduino.h>
-
-
 class Button 
 {
-  private:
-      int a;
-      int b;
-      int pin_btn;
-      int pressBtn;
-      
+private:
+  int pin;
+  int buttonState;
+  int prevButtonState;
+  unsigned long lastDebounceTime;
+  bool isButtonOn;
 
-    public:
-      Button(int pin) 
-      {
-        a = 0;
-        b = 0;
-        pressBtn = 0;
-        pin_btn = pin;
-        pinMode(pin_btn, INPUT);
-        
-      }
+public:
+  Button(int pin) : pin(pin), buttonState(HIGH), prevButtonState(HIGH), lastDebounceTime(0), isButtonOn(false) {
+    pinMode(pin, INPUT);
+  }
 
-      void setB(int bset){
-        b = bset;
-      }
+  void update() {
+    int reading = digitalRead(pin);
 
-      int getB()
-      {
-        return b;
-      }
+    if (reading != prevButtonState) {
+      lastDebounceTime = millis();
+    }
 
+    if ((millis() - lastDebounceTime) > 50) {
+      if (reading != buttonState) {
+        buttonState = reading;
 
-      int detectPress()
-      {
-        a = digitalRead(pin_btn);
-        if (a == HIGH && b == LOW) {
-            return 1;
-        }
-        else{
-             return 0;
+        if (buttonState == LOW) {
+          isButtonOn = !isButtonOn;
+
+          if (isButtonOn) {
+            Serial.println("Button: MAX");
+          } else {
+            Serial.println("Button: MIN");
+          }
         }
       }
+    }
 
-      void test()
-      {
-        int option = detectPress();
-        if(option==1) Serial.println("STATE: MAX+");
-        if(option==0) Serial.println("STATE: MIN");
+    prevButtonState = reading;
+  }
 
-      }
+  bool isOn() {
+    return isButtonOn;
+  }
 
-      String text_limit()
-      {
-        int option = detectPress();
-        if(option==1) return "MAX:";
-        if(option==0) return "MIN:";
-      }
+  int detectPress()
+  {
+    update();
+    if(isOn())
+    {
+      return 1;
+    }
+    else{
+      return 0;
+    }
+  }
+
+  void test(){
+    int choose = detectPress();
+    if(choose==1) Serial.println("on");
+    if(choose==0) Serial.println("off");
+
+  }
 };

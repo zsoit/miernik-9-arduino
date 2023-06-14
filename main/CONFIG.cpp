@@ -1,7 +1,7 @@
 // DEPENDENCES
 #include "ScreenLcd.cpp"
 #include "DiodeLed.cpp"
-#include "MyEncoder.cpp"
+// #include "LimitTemperature.cpp"
 #include "Button.cpp"
 #include "ds18b20.cpp"
 

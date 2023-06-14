@@ -1,74 +1,106 @@
-// class LimitTemperature
-// {
-// private:
-//   int Min;
-//   int Max;
-//   int SIA;
-//   int SIB;
-//   int choose;
+#include <Arduino.h>
 
-//   int a = 1;
-//   int b = 1;
-//   int t = 0;
 
-// public:
-//   LimitTemperature(int detectPress) : Min(0), Max(0), SIA(2), SIB(3), Btn(4) {
-//   }
+class LimitTemperature
+{
+private:
+  int Min;
+  int Max;
+  int SIA;
+  int SIB;
+  int SI_SW;
 
-//   void setup()
-//   {
-//     pinMode(SIB, INPUT);
-//     pinMode(SIA, INPUT);
-//   }
+  int a = 1;
+  int b = 1;
+  int t = 0;
 
-//   void setMin(int newMin) { Min = newMin; }
-//   void setMax(int newMax) { Max = newMax; }
 
-//   int getMin() { return Min; }
-//   int getMax() { return Max; }
+public:
+  String text_max = "0";
+  String text_min = "0";
 
-//   void EncoderUsing()
-//   {
-//     Btn.update();
+  LimitTemperature() : Min(0), Max(0), SIA(2), SIB(3), SI_SW(5)
+  {
+  }
+  
 
-//     int choose = Btn.detectPress();
+  void setup()
+  {
+    pinMode(SIB, INPUT);
+    pinMode(SIA, INPUT);
+  }
 
-//     if (choose == 1)
-//     {
-//       a = digitalRead(SIA);
-//       if ((b == 1) && (a == 0) && ((millis() - t) > 50))
-//       {
-//         t = millis();
-//         if (digitalRead(SIB) == 1)
-//         {
-//           setMax(getMax() + 1);
-//           Serial.println("MAX: " + String(getMax()));
-//         }
-//         else
-//         {
-//           setMax(getMax() - 1);
-//           Serial.println("MAX: " + String(getMax()));
-//         }
-//       }
-//     }
+  void setMin(int newMin) { Min = newMin; }
+  void setMax(int newMax) { Max = newMax; }
 
-//     if (choose == 0)
-//     {
-//       a = digitalRead(SIA);
-//       if ((b == 1) && (a == 0) && ((millis() - t) > 50))
-//       {
-//         t = millis();
-//         if (digitalRead(SIB) == 1)
-//         {
-//           setMin(getMin() + 1);
-//           Serial.println("MIN: " + String(getMin()));
-//         }
-//         else
-//         {
-//           setMin(getMin() - 1);
-//           Serial.println("MIN: " + String(getMin()));
-//         }
-//       }
-//     }
-//   }
-// };
+  int getMin() { return Min; }
+  int getMax() { return Max; }
+
+  void setTextMax(String newtext) { text_max = newtext; }
+  void setTextMin(String newtext) { text_min = newtext; }
+
+  String getTextMax() { return text_max;}
+  String getTextMin() { return text_min;}
+
+
+  void testPrint(String cursor_max, String cursor_min)
+  {
+      Serial.println("===========");
+      Serial.println("MAX: " + String(getMax()) + cursor_max);
+      Serial.println("MIN: " + String(getMin()) + cursor_min);
+      Serial.println("===========");
+  }
+
+  void testPrintMax() { testPrint(" <==", " "); }
+  void testPrintMin() { testPrint(" ", " <=="); }
+
+
+  void test(int detect)
+  {
+
+    // LIMIT MAX
+    int choose = detect;
+
+    if (choose == 1){
+        a = digitalRead(SIA);
+
+        // reset counter
+        if (digitalRead(SI_SW) == LOW) {setMax(0); testPrintMax();}
+
+        // enkdoer
+        if ((b == 1) && (a == 0) && ((millis() - t) > 50))
+        {
+          t = millis();
+          (digitalRead(SIB) == 1) ? setMax(getMax() + 1) : setMax(getMax() - 1);
+          testPrintMax();      
+        }
+        setTextMax("MAX: " + String(getMax()) + " <==");
+        setTextMin("MIN: " + String(getMin()));
+
+
+    }
+
+
+    // LIMIT MIN
+    if (choose == 0)
+    {
+
+      // reset counter
+      if (digitalRead(SI_SW) == LOW) { setMin(0); testPrintMin(); }
+
+      // enkdoer
+      a = digitalRead(SIA);
+      if ((b == 1) && (a == 0) && ((millis() - t) > 50))
+      {
+        t = millis();
+        (digitalRead(SIB) == 1) ? setMin(getMin() + 1) : setMin(getMin() - 1);
+        testPrintMin();
+      }
+
+      setTextMax("MAX: " + String(getMax()));
+      setTextMin("MIN: " + String(getMin()) + " <==");
+    }
+  }
+
+
+};

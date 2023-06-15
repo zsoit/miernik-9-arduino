@@ -1,7 +1,5 @@
-// LCD DISPLAY 16X1
 #include <LiquidCrystal.h>
 #include <Arduino.h>
-
 #define LCD_CHAR 20
 #define LCD_ROWS 4
 
@@ -34,7 +32,7 @@ class ScreenLcd
       lcd.print(line[1]);
       
       lcd.setCursor(0, 2);
-      lcd.print(line[2]);
+      lcd.print(line[2] + " C");
     }
 
 

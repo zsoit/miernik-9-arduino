@@ -18,6 +18,8 @@ private:
   int t = 0;
 
 public:
+
+
   String text_max = "0";
   String text_min = "0";
 

@@ -7,7 +7,7 @@
 title: "Miernik temperatury 9"
 subtitle: "Labolatorium Systemów Elektronicznych, Informatyka - I rok, II semestr"
 author: "Autorzy: Jakub Achtelik, Kacper Oborzyński"
-date: "Koszalin, 14 Czerwca 2023"
+date: "Koszalin, 15 Czerwca 2023"
 institute: "Politechnika Koszalińśka"
 language: pl
 
@@ -54,7 +54,7 @@ Projekt na symulatorze: **https://wokwi.com/projects/367315813073881089**
 
 ## 1.1 Wykorzystane komponenty
 - Arduino Uno  - ATmega328
-- Miernik temperatury DS18B20 + 2x rezystor 5k Ohm
+- Miernik temperatury DS18B20 + 2x rezystor 10k Ohm
 -  Wyświetlacz LCD 20x4 
 -  Enkoder inkrementalny (obrotowy)
 -  Czerwona Dioda LED + 1x rezystor 1k Ohm
@@ -215,6 +215,24 @@ Przykład testowania czujnika:
     }
 ```
 
+
+## 2.5 Problem jednoczesnego pomiaru temperatury i działania enkodera
+
+Rozwiązanie problemu polegało na wprowadzeniu dodatkowej zmiennej readTemperatureFlag oraz pola previousTemperatura w klasie MiernikTemperatury9.
+
+Zmienna readTemperatureFlag jest flagą, która określa, czy odczyt temperatury powinien zostać wykonany. Jeśli enkoder jest nieużywany, flaga zostaje ustawiona na true, co oznacza, że temperatura powinna zostać odczytana z czujnika. Natomiast jeśli enkoder jest używany, flaga jest ustawiana na false, a wtedy zamiast odczytywać temperaturę, wykorzystywana jest poprzednia zapisana wartość.
+
+Pole previousTemperatura przechowuje poprzednią odczytaną temperaturę. W momencie, gdy flaga readTemperatureFlag jest ustawiona na true, oznacza to, że odczyt temperatury powinien zostać wykonany, więc aktualna temperatura jest zapisywana do pola previousTemperatura.
+
+W funkcji Main(), jeśli enkoder jest nieużywany (stan LOW na pinie ENCODER_A_PIN), flaga readTemperatureFlag jest ustawiana na true. Wówczas wywoływana jest metoda text_temperature() z obiektu TemperatureSensor, a następnie wynik jest konwertowany na liczbę całkowitą (int) za pomocą metody toInt(). Wartość ta jest przypisywana do pola Temperatura, a także jest wyświetlana na ekranie LCD.
+
+Natomiast jeśli enkoder jest używany, flaga readTemperatureFlag jest ustawiana na false, a wówczas wywoływana jest metoda Testing() w celu przeprowadzenia innych operacji (np. testowanie przycisków czy diod LED). Aktualna temperatura nie jest odczytywana, a na ekranie LCD wyświetlana jest poprzednia zapisana wartość z pola previousTemperatura.
+
+W przypadku zmiany limitu temperatury (przez wciśnięcie przycisku), odpowiedni limit i poprzednia temperatura są przekazywane do metody limit_info() obiektu Led.
+
+W ten sposób zastosowanie flagi readTemperatureFlag oraz pola previousTemperatura pozwala na wykrywanie czy enkoder jest używany i umożliwia zachowanie poprzedniej odczytanej temperatury, gdy enkoder jest w użyciu.
+
+
 \newpage
 
 
@@ -223,87 +241,102 @@ Przykład testowania czujnika:
 - main.ino
 - CONFIG.cpp
 - ds18b20.cpp
-- SreenLcd.cpp
+- ScreenLcd.cpp
 - LimitTemperature.cpp
 - DiodeLed.cpp
 - Button.cpp
 
 ## 3.1 Inicjalizacja - main.ino
 
-Plik  main.ino  zawiera klasę  **MiernikTemperatury9**, która agreguje cały kod i wywołuje wszystkie metody. Dodatkowo utworzona została klasa do przetrzymywanie progu temperatury.
+Plik  main.ino  zawiera klasę  **MiernikTemperatury9**, która agreguje cały kod i wywołuje wszystkie metody z innych klas.
 
 ```cpp
 #include "CONFIG.cpp"
+
 class MiernikTemperatury9 
 {
-  private:
-    TemperatureSensorDS18B20 TemperatureSensor;
-    ScreenLcd Lcd;
-    DiodeLed Led;
-    Button Btn;
-    LimitTemperature Limit;
+private:
+  TemperatureSensorDS18B20 TemperatureSensor;
+  ScreenLcd Lcd;
+  DiodeLed Led;
+  Button Btn;
+  LimitTemperature Limit;
+  float Temperatura;
+  float previousTemperatura;
+  bool readTemperatureFlag = true;
 
-  public:
-    void Testing()
-    {
-      Limit.detect(Btn.detectPress());
-      // Serial.println("Test - arduino is connect");
-      // TemperatureSensor.test();
-      // Lcd.test();
-      // Btn.test();
-      // Led.test();
-    } 
+public:
+  void setTemperatura(float newT) { Temperatura = newT; }
+  float getTemperatura() { return Temperatura; }
+  
+  void Testing()
+  {
+    Limit.detect(Btn.detectPress());
+    // Serial.println("Test - arduino is connect");
+    // TemperatureSensor.test();
+    // Lcd.test();
+    // Btn.test();
+    // Led.test();
+  } 
 
-    void loop() 
-    {
-      Main();
-      // Testing();
+  void loop() 
+  {
+    Main();
+    // Testing();
+  }
+  void setup() 
+  {
+    Serial.begin(SERIAL_PORT);
+    TemperatureSensor.setup();
+    Lcd.setup();
+  }
+  MiernikTemperatury9() : 
+    TemperatureSensor(DS_PIN),
+    Lcd(RS, E, D4, D5, D6, D7),
+    Led(LED_PIN),
+    Btn(BTN_PIN){}
+    
+  void Main() 
+  {
+    int choose = Btn.detectPress();
+
+    String text[3];
+    Limit.detect(Btn.detectPress());
+    text[1] = Limit.getTextMin();
+    text[0] = Limit.getTextMax();
+
+    if (digitalRead(ENCODER_A_PIN) == LOW) {
+      readTemperatureFlag = true;
+      setTemperatura(TemperatureSensor.readTemperature());
+      text[2] = getTemperatura();
+
+      if (choose == 1) Led.limit_info(Limit.getMax(), text[2].toInt());
+      if (choose == 0) Led.limit_info(Limit.getMin(), text[2].toInt());
+
+
+    } else {
+      readTemperatureFlag = false;
+      Testing();
+      text[2] = previousTemperatura;
+
+      if (choose == 1) Led.limit_info(Limit.getMax(), text[2].toInt());
+      if (choose == 0) Led.limit_info(Limit.getMin(), text[2].toInt());
+    
     }
 
-    void setup() 
-    {
-      Serial.begin(SERIAL_PORT);
-      TemperatureSensor.setup();
-      Lcd.setup();
+    Lcd.displayTextLcd(text);
+
+    if (readTemperatureFlag) {
+      previousTemperatura = Temperatura;
     }
 
-    MiernikTemperatury9() : 
-      TemperatureSensor(DS_PIN),
-      Lcd(RS, E, D4, D5, D6, D7),
-      Led(LED_PIN),
-      Btn(BTN_PIN)
-      { 
-      }
-
-    void Main() 
-    {
-      
-     Limit.detect(Btn.detectPress());
-
-      String text[2];
-      text[1] = Limit.getTextMin();
-      text[0] = Limit.getTextMax();
-      if(Btn.detectPress()==0) text[2] = TemperatureSensor.text_temperature() + " " +  TemperatureSensor.text_kelvin();
-      else text[2] = TemperatureSensor.text_temperature() + " " + TemperatureSensor.text_fahrenheit();
-      Lcd.displayTextLcd(text);     
-
-      // LIMIT INFO
-      int choose = Btn.detectPress();
-      if(choose == 1) Led.limit_info(Limit.getMax(), TemperatureSensor.readTemperature());
-      if(choose == 0) Led.limit_info(Limit.getMin(), TemperatureSensor.readTemperature());
-
-    }
+  }
 };
 
 MiernikTemperatury9 projekt;
+void setup() { projekt.setup(); }
+void loop() { projekt.loop(); }
 
-void setup() {
-  projekt.setup();
-}
-
-void loop() {
-  projekt.loop();
-}
 ```
 
 
@@ -346,10 +379,9 @@ Zawiera konfigurację wszystkich pinów oraz załącza wszystkie klasy.
 ```
 \newpage
 
-## 3.3 Wyświetlacz LCD 20x4 -  SreenLcd.cpp
+## 3.3 Wyświetlacz LCD 20x4 -  ScreenLcd.cpp
 
 ```cpp
-// LCD DISPLAY 16X1
 #include <LiquidCrystal.h>
 #include <Arduino.h>
 #define LCD_CHAR 20
@@ -384,9 +416,9 @@ class ScreenLcd
       lcd.print(line[1]);
       
       lcd.setCursor(0, 2);
-      lcd.print(line[2]);
+      lcd.print(line[2] + " C");
     }
-
+    
     void test() {
       lcd.clear();
       lcd.setCursor(0, 0);
@@ -395,6 +427,7 @@ class ScreenLcd
     }
 };
 
+
 ```
 
 
@@ -402,7 +435,6 @@ class ScreenLcd
 
 ## 3.4 Miernik temperatury DS18B20 - ds18b20.cpp
 ```cpp
-#include <OneWire.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <Arduino.h>
@@ -452,11 +484,10 @@ class TemperatureSensorDS18B20
 \newpage
 
 
-## 3.5 Endkoder - LimitTemperature.cpp
+## 3.5 Enkoder - LimitTemperature.cpp
 
 ```cpp
 #include <Arduino.h>
-
 #define ENCODER_A_PIN 2
 #define ENCODER_B_PIN 3
 #define ENCODER_RESET_PIN 5

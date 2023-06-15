@@ -24,7 +24,7 @@ class ScreenLcd
       lcd.print(line);
     }
 
-    void displayTextX4(const String line[3]){
+    void displayTextLcd(const String line[2]){
       lcd.clear();
       
       lcd.setCursor(0, 0);
@@ -35,9 +35,6 @@ class ScreenLcd
       
       lcd.setCursor(0, 2);
       lcd.print(line[2]);
-
-      // lcd.setCursor(0, 3);
-      // lcd.print(line[3]);
     }
 
 

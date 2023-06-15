@@ -1,5 +1,8 @@
 #include <Arduino.h>
 
+#define ENCODER_A_PIN 2
+#define ENCODER_B_PIN 3
+#define ENCODER_RESET_PIN 5
 
 class LimitTemperature
 {
@@ -13,13 +16,12 @@ private:
   int a = 1;
   int b = 1;
   int t = 0;
-  float temperature;
 
 public:
   String text_max = "0";
   String text_min = "0";
 
-  LimitTemperature() : Min(0), Max(0), SIA(2), SIB(3), SI_SW(5)
+  LimitTemperature() : Min(0), Max(0), SIA(ENCODER_A_PIN), SIB(ENCODER_B_PIN), SI_SW(ENCODER_RESET_PIN)
   {
   }
   
@@ -29,12 +31,6 @@ public:
     pinMode(SIB, INPUT);
     pinMode(SIA, INPUT);
   }
-
-  void setTemp(float temp)
-  {
-    temperature = temp;
-  }
-  float getTemp() {return temperature;}
 
   void setMin(int newMin) { Min = newMin; }
   void setMax(int newMax) { Max = newMax; }
@@ -61,7 +57,7 @@ public:
   void testPrintMin() { testPrint(" ", " <=="); }
 
 
-  void test(int detect)
+  void detect(int detect)
   {
 
     // LIMIT MAX

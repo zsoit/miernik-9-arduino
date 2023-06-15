@@ -7,8 +7,8 @@ class TemperatureSensorDS18B20
   private:
     OneWire oneWire;
     DallasTemperature sensor;
-    unsigned long lastReadTime;  // Czas ostatniego odczytu temperatury
-    unsigned long readInterval;  // Interwał czasowy pomiędzy odczytami
+    unsigned long lastReadTime;  
+    unsigned long readInterval;
 
   public:
     TemperatureSensorDS18B20(int pin, unsigned long interval = 1000) : oneWire(pin), sensor(&oneWire), lastReadTime(0), readInterval(interval) {}
@@ -19,8 +19,6 @@ class TemperatureSensorDS18B20
 
     float readTemperature() {
       unsigned long currentTime = millis();
-      
-      // Sprawdzamy, czy wystarczył czas od ostatniego odczytu
       if (currentTime - lastReadTime >= readInterval) {
         sensor.requestTemperatures();
         lastReadTime = currentTime;

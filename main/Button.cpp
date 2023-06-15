@@ -46,13 +46,8 @@ public:
   int detectPress()
   {
     update();
-    if(isOn())
-    {
-      return 1;
-    }
-    else{
-      return 0;
-    }
+    if(isOn()) { return 1; }
+    else { return 0;}
   }
 
   void test(){

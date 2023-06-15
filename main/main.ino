@@ -13,40 +13,18 @@ class MiernikTemperatury9
   public:
     void Testing()
     {
+      Limit.detect(Btn.detectPress());
       // Serial.println("Test - arduino is connect");
       // TemperatureSensor.test();
       // Lcd.test();
       // Btn.test();
       // Led.test();
-
-
-      Limit.setTemp(TemperatureSensor.readTemperature());
-
-      Limit.test(Btn.detectPress());
-
-      int choose = Btn.detectPress();
-      if(choose == 1) Led.limit_max(Limit.getMax(), TemperatureSensor.readTemperature());
-      if(choose == 0) Led.limit_min(Limit.getMin(), TemperatureSensor.readTemperature());
-
-      String xd[3];
-
-      xd[1] = Limit.getTextMin();
-      xd[0] = Limit.getTextMax();
-      
-
-      if(Btn.detectPress()==0) xd[2] = TemperatureSensor.text_temperature();
-      else xd[2] = TemperatureSensor.text_second_row();
-
-      // xd[3] = "simea";
-
-      Lcd.displayTextX4(xd);     
-
     } 
 
     void loop() 
     {
-      // Main();
-      Testing();
+      Main();
+      // Testing();
     }
 
     void setup() 
@@ -69,22 +47,21 @@ class MiernikTemperatury9
     void Main() 
     {
       
-      Limit.test(Btn.detectPress());
+      Limit.detect(Btn.detectPress());
 
+      String text[2];
+      text[1] = Limit.getTextMin();
+      text[0] = Limit.getTextMax();
+      if(Btn.detectPress()==0) text[2] = TemperatureSensor.text_temperature() + " " +  TemperatureSensor.text_kelvin();
+      else text[2] = TemperatureSensor.text_temperature() + " " + TemperatureSensor.text_fahrenheit();
+      Lcd.displayTextLcd(text);    
 
-
-
-      String texts[3];
-
-      texts[0] = TemperatureSensor.text_temperature();
-      texts[1] = TemperatureSensor.text_second_row();
-      texts[2] = Limit.text_max;
-      texts[3] = Limit.text_min;
-
-      Lcd.displayTextX4(texts);
+      // LIMIT INFO
+      int choose = Btn.detectPress();
+      if(choose == 1) Led.limit_info(Limit.getMax(), TemperatureSensor.readTemperature());
+      if(choose == 0) Led.limit_info(Limit.getMin(), TemperatureSensor.readTemperature());
 
     }
-
 };
 
 
